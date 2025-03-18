@@ -33,7 +33,7 @@ const ModelControlTableInfo_t control_table_1_0[] PROGMEM = {
   {ControlTableItem::SHUTDOWN,              18, 1},
 
   {ControlTableItem::TORQUE_ENABLE,         24, 1},
-  {ControlTableItem::LED,                   25, 1},
+  {ControlTableItem::DXL_LED,                   25, 1},
   {ControlTableItem::CW_COMPLIANCE_MARGIN,  26, 1},
   {ControlTableItem::CCW_COMPLIANCE_MARGIN, 27, 1},
   {ControlTableItem::CW_COMPLIANCE_SLOPE,   28, 1},
@@ -85,7 +85,7 @@ const ModelControlTableInfo_t control_table_1_1[] PROGMEM = {
   {ControlTableItem::RESOLUTION_DIVIDER,    22, 1},
 
   {ControlTableItem::TORQUE_ENABLE,         24, 1},
-  {ControlTableItem::LED,                   25, 1},
+  {ControlTableItem::DXL_LED,                   25, 1},
   {ControlTableItem::D_GAIN,                26, 1},
   {ControlTableItem::I_GAIN,                27, 1},
   {ControlTableItem::P_GAIN,                28, 1},
@@ -144,7 +144,7 @@ const ModelControlTableInfo_t xl320_control_table[] PROGMEM = {
   {ControlTableItem::SHUTDOWN,              18, 1},
 
   {ControlTableItem::TORQUE_ENABLE,         24, 1},
-  {ControlTableItem::LED,                   25, 1},
+  {ControlTableItem::DXL_LED,                   25, 1},
   {ControlTableItem::D_GAIN,                27, 1},
   {ControlTableItem::I_GAIN,                28, 1},
   {ControlTableItem::P_GAIN,                29, 1},
@@ -197,7 +197,7 @@ const ModelControlTableInfo_t control_table_2_0[] PROGMEM = {
   {ControlTableItem::SHUTDOWN,                63, 1},
 
   {ControlTableItem::TORQUE_ENABLE,           64, 1},
-  {ControlTableItem::LED,                     65, 1},
+  {ControlTableItem::DXL_LED,                     65, 1},
   {ControlTableItem::STATUS_RETURN_LEVEL,     68, 1},
   {ControlTableItem::REGISTERED_INSTRUCTION,  69, 1},
   {ControlTableItem::HARDWARE_ERROR_STATUS,   70, 1},
@@ -475,7 +475,7 @@ const ModelControlTableInfo_t y_control_table[] PROGMEM = {
   {ControlTableItem::PROFILE_ACCELERATION_TIME,          248, 4},
   {ControlTableItem::PROFIIE_TIME,                       252, 4},
   {ControlTableItem::TORQUE_ENABLE,                      512, 1},
-  {ControlTableItem::LED,                                513, 1},
+  {ControlTableItem::DXL_LED,                                513, 1},
   {ControlTableItem::PWM_OFFSET,                         516, 2},
   {ControlTableItem::CURRENT_OFFSET,                     518, 2},
   {ControlTableItem::VELOCITY_OFFSET,                    520, 4},

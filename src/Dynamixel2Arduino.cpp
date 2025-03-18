@@ -617,7 +617,7 @@ bool Dynamixel2Arduino::setLedState(uint8_t id, bool state)
       break;
 
     default:
-      ret = writeControlTableItem(ControlTableItem::LED, id, state);
+      ret = writeControlTableItem(ControlTableItem::DXL_LED, id, state);
       break;
   }
 

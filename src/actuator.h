@@ -331,7 +331,7 @@ namespace ControlTableItem{
     SHUTDOWN,
 
     TORQUE_ENABLE,
-    LED,
+    DXL_LED,
     DXL_LED_RED,
     DXL_LED_GREEN,
     DXL_LED_BLUE,
