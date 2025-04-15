@@ -493,7 +493,7 @@ const ModelControlTableInfo_t y_control_table[] PROGMEM = {
   {ControlTableItem::VELOCITY_TRAJECTORY,                564, 4},
   {ControlTableItem::PRESENT_INPUT_VOLTAGE,              568, 2},
   {ControlTableItem::PRESENT_TEMPERATURE,                570, 1},   // Present Inverter Temperature
-  {ControlTableItem::PRESENT_MOTOR_TEMPERATURE,          571, 4},
+  {ControlTableItem::PRESENT_MOTOR_TEMPERATURE,          571, 1},
 #endif
   {ControlTableItem::LAST_DUMMY_ITEM,                      0, 0}
 };
