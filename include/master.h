@@ -18,8 +18,8 @@
 #define DYNAMIXEL_MASTER_HPP_
 
 
-#include "dxl_c/protocol.h"
 #include "port_handler.h"
+#include "protocol.h"
 #include "config.h"
 
 

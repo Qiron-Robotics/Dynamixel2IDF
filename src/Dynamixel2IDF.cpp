@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "Dynamixel2Arduino.h"
+#include "include/Dynamixel2IDF.h"
 
 namespace DYNAMIXEL{
 
@@ -73,7 +73,7 @@ enum Functions{
   SET_BAUD_RATE,
 
   SET_PROTOCOL,
- 
+
   SET_POSITION,
   GET_POSITION,
 
@@ -116,24 +116,21 @@ static bool checkAndconvertWriteData(float in_data, int32_t &out_data, uint8_t u
 static bool checkAndconvertReadData(int32_t in_data, float &out_data, uint8_t unit, ItemAndRangeInfo_t &item_info);
 
 
-Dynamixel2Arduino::Dynamixel2Arduino(uint16_t packet_buf_size)
-: Master(2.0, packet_buf_size), model_number_idx_last_index_(0)
-{
+Dynamixel2IDF::Dynamixel2IDF(uint16_t packet_buf_size)
+: Master(2.0, packet_buf_size), model_number_idx_last_index_(0) {
   memset(&model_number_idx_, 0xff, sizeof(model_number_idx_));
 }
 
-Dynamixel2Arduino::Dynamixel2Arduino(HardwareSerial& port, int dir_pin, uint16_t packet_buf_size)
-: Master(2.0, packet_buf_size), model_number_idx_last_index_(0)
-{
-  p_dxl_port_ = new SerialPortHandler(port, dir_pin);
+Dynamixel2IDF::Dynamixel2IDF( DXLPortHandler& port, int dir_pin, uint16_t packet_buf_size)
+: Master(2.0, packet_buf_size), model_number_idx_last_index_(0) {
+  p_dxl_port_ = new IDFPortHandler(port, dir_pin);
   setPort(p_dxl_port_);
   memset(&model_number_idx_, 0xff, sizeof(model_number_idx_));
 }
 
 /* For Master configuration */
-void Dynamixel2Arduino::begin(unsigned long baud)
-{
-  p_dxl_port_ = (SerialPortHandler*)getPort();
+void Dynamixel2IDF::begin(unsigned long baud) {
+  p_dxl_port_ = (IDFPortHandler*)getPort();
 
   if(p_dxl_port_ == nullptr){
     setLastLibErrCode(D2A_LIB_ERROR_NULLPTR_PORT_HANDLER);
@@ -143,9 +140,8 @@ void Dynamixel2Arduino::begin(unsigned long baud)
   p_dxl_port_->begin(baud);
 }
 
-unsigned long Dynamixel2Arduino::getPortBaud()
-{
-  p_dxl_port_ = (SerialPortHandler*)getPort();
+unsigned long Dynamixel2IDF::getPortBaud() {
+  p_dxl_port_ = (IDFPortHandler*)getPort();
 
   if(p_dxl_port_ == nullptr){
     setLastLibErrCode(D2A_LIB_ERROR_NULLPTR_PORT_HANDLER);
@@ -155,8 +151,7 @@ unsigned long Dynamixel2Arduino::getPortBaud()
   return p_dxl_port_->getBaud();
 }
 
-bool Dynamixel2Arduino::scan()
-{
+bool Dynamixel2IDF::scan() {
   bool ret = true;
 
   ret = ping();
@@ -164,8 +159,7 @@ bool Dynamixel2Arduino::scan()
   return ret;
 }
 
-bool Dynamixel2Arduino::ping(uint8_t id)
-{
+bool Dynamixel2IDF::ping(uint8_t id) {
   bool ret = false;
  
   if (id != DXL_BROADCAST_ID){
@@ -196,8 +190,7 @@ bool Dynamixel2Arduino::ping(uint8_t id)
 }
 
 bool 
-Dynamixel2Arduino::setModelNumber(uint8_t id, uint16_t model_number)
-{
+Dynamixel2IDF::setModelNumber(uint8_t id, uint16_t model_number) {
   bool ret = false;
 
   if(id <= 253){
@@ -213,8 +206,7 @@ Dynamixel2Arduino::setModelNumber(uint8_t id, uint16_t model_number)
   return ret;
 }
 
-uint16_t Dynamixel2Arduino::getModelNumber(uint8_t id)
-{
+uint16_t Dynamixel2IDF::getModelNumber(uint8_t id) {
   uint16_t model_num = 0xFFFF;
 
   (void) read(id, COMMON_MODEL_NUMBER_ADDR, COMMON_MODEL_NUMBER_ADDR_LENGTH,
@@ -223,13 +215,11 @@ uint16_t Dynamixel2Arduino::getModelNumber(uint8_t id)
   return model_num;
 }
 
-bool Dynamixel2Arduino::setID(uint8_t id, uint8_t new_id)
-{
+bool Dynamixel2IDF::setID(uint8_t id, uint8_t new_id) {
   return writeControlTableItem(ControlTableItem::ID, id, new_id);
 }
 
-bool Dynamixel2Arduino::setProtocol(uint8_t id, float version)
-{
+bool Dynamixel2IDF::setProtocol(uint8_t id, float version) {
   uint8_t ver_idx;
 
   if(version == 1.0){
@@ -245,8 +235,7 @@ bool Dynamixel2Arduino::setProtocol(uint8_t id, float version)
 }
 
 //TODO: Simplify the code by grouping model numbers.
-bool Dynamixel2Arduino::setBaudrate(uint8_t id, uint32_t baudrate)
-{
+bool Dynamixel2IDF::setBaudrate(uint8_t id, uint32_t baudrate) {
   uint16_t model_num = getModelNumberFromTable(id);
   uint8_t baud_idx = 0;
 
@@ -554,33 +543,27 @@ bool Dynamixel2Arduino::setBaudrate(uint8_t id, uint32_t baudrate)
 
 
 /* Commands for Slave */
-bool Dynamixel2Arduino::torqueOn(uint8_t id)
-{
+bool Dynamixel2IDF::torqueOn(uint8_t id) {
   return setTorqueEnable(id, true);
 }
 
-bool Dynamixel2Arduino::torqueOff(uint8_t id)
-{
+bool Dynamixel2IDF::torqueOff(uint8_t id) {
   return setTorqueEnable(id, false);
 }
 
-bool Dynamixel2Arduino::setTorqueEnable(uint8_t id, bool enable)
-{
+bool Dynamixel2IDF::setTorqueEnable(uint8_t id, bool enable) {
   return writeControlTableItem(ControlTableItem::TORQUE_ENABLE, id, enable);
 }
 
-bool Dynamixel2Arduino::ledOn(uint8_t id)
-{
+bool Dynamixel2IDF::ledOn(uint8_t id) {
   return setLedState(id, true);
 }
 
-bool Dynamixel2Arduino::ledOff(uint8_t id)
-{
+bool Dynamixel2IDF::ledOff(uint8_t id) {
   return setLedState(id, false);
 }
 
-bool Dynamixel2Arduino::setLedState(uint8_t id, bool state)
-{
+bool Dynamixel2IDF::setLedState(uint8_t id, bool state) {
   bool ret = false;
   uint16_t model_num = getModelNumberFromTable(id);
 
@@ -626,8 +609,7 @@ bool Dynamixel2Arduino::setLedState(uint8_t id, bool state)
 
 
 //TODO: Simplify the code by grouping model numbers.
-bool Dynamixel2Arduino::setOperatingMode(uint8_t id, uint8_t mode)
-{
+bool Dynamixel2IDF::setOperatingMode(uint8_t id, uint8_t mode) {
   bool ret = false;
   uint16_t model_num = getModelNumberFromTable(id);
 
@@ -838,72 +820,63 @@ bool Dynamixel2Arduino::setOperatingMode(uint8_t id, uint8_t mode)
   return ret;
 }
 
-bool Dynamixel2Arduino::setGoalPosition(uint8_t id, float value, uint8_t unit)
-{
+bool Dynamixel2IDF::setGoalPosition(uint8_t id, float value, uint8_t unit) {
   if(unit != UNIT_RAW && unit != UNIT_DEGREE)
     return false;
 
   return writeForRangeDependencyFunc(SET_POSITION, id, value, unit);
 }
 
-float Dynamixel2Arduino::getPresentPosition(uint8_t id, uint8_t unit)
-{
+float Dynamixel2IDF::getPresentPosition(uint8_t id, uint8_t unit) {
   if(unit != UNIT_RAW && unit != UNIT_DEGREE)
     return 0.0;
 
   return readForRangeDependencyFunc(GET_POSITION, id, unit);
 }
 
-bool Dynamixel2Arduino::setGoalVelocity(uint8_t id, float value, uint8_t unit)
-{
+bool Dynamixel2IDF::setGoalVelocity(uint8_t id, float value, uint8_t unit) {
   if(unit != UNIT_RAW && unit != UNIT_PERCENT && unit != UNIT_RPM)
     return false;
 
   return writeForRangeDependencyFunc(SET_VELOCITY, id, value, unit);
 }
 
-float Dynamixel2Arduino::getPresentVelocity(uint8_t id, uint8_t unit)
-{
+float Dynamixel2IDF::getPresentVelocity(uint8_t id, uint8_t unit) {
   if(unit != UNIT_RAW && unit != UNIT_PERCENT && unit != UNIT_RPM)
     return 0.0;
 
   return readForRangeDependencyFunc(GET_VELOCITY, id, unit);
 }
 
-bool Dynamixel2Arduino::setGoalPWM(uint8_t id, float value, uint8_t unit)
-{
+bool Dynamixel2IDF::setGoalPWM(uint8_t id, float value, uint8_t unit) {
   if(unit != UNIT_RAW && unit != UNIT_PERCENT)
     return false;
 
   return writeForRangeDependencyFunc(SET_PWM, id, value, unit);
 }
 
-float Dynamixel2Arduino::getPresentPWM(uint8_t id, uint8_t unit)
-{
+float Dynamixel2IDF::getPresentPWM(uint8_t id, uint8_t unit) {
   if(unit != UNIT_RAW && unit != UNIT_PERCENT)
     return 0.0;
 
   return readForRangeDependencyFunc(GET_PWM, id, unit);
 }
 
-bool Dynamixel2Arduino::setGoalCurrent(uint8_t id, float value, uint8_t unit)
-{
+bool Dynamixel2IDF::setGoalCurrent(uint8_t id, float value, uint8_t unit) {
   if(unit != UNIT_RAW && unit != UNIT_PERCENT && unit != UNIT_MILLI_AMPERE)
     return false;
 
   return writeForRangeDependencyFunc(SET_CURRENT, id, value, unit);
 }
 
-float Dynamixel2Arduino::getPresentCurrent(uint8_t id, uint8_t unit)
-{
+float Dynamixel2IDF::getPresentCurrent(uint8_t id, uint8_t unit) {
   if(unit != UNIT_RAW && unit != UNIT_PERCENT && unit != UNIT_MILLI_AMPERE)
     return 0.0;
 
   return readForRangeDependencyFunc(GET_CURRENT, id, unit);
 }
 
-bool Dynamixel2Arduino::getTorqueEnableStat(uint8_t id)
-{
+bool Dynamixel2IDF::getTorqueEnableStat(uint8_t id) {
   bool ret = false;
 
   if(readControlTableItem(ControlTableItem::TORQUE_ENABLE, id) == DXL_TORQUE_ON){
@@ -915,8 +888,7 @@ bool Dynamixel2Arduino::getTorqueEnableStat(uint8_t id)
   return ret;
 }
 
-int32_t Dynamixel2Arduino::readControlTableItem(uint8_t item_idx, uint8_t id, uint32_t timeout)
-{
+int32_t Dynamixel2IDF::readControlTableItem(uint8_t item_idx, uint8_t id, uint32_t timeout) {
   int32_t ret = 0;
   uint16_t model_num = getModelNumberFromTable(id);
 
@@ -936,8 +908,7 @@ int32_t Dynamixel2Arduino::readControlTableItem(uint8_t item_idx, uint8_t id, ui
   return ret;
 }
 
-bool Dynamixel2Arduino::writeControlTableItem(uint8_t item_idx, uint8_t id, int32_t data, uint32_t timeout)
-{
+bool Dynamixel2IDF::writeControlTableItem(uint8_t item_idx, uint8_t id, int32_t data, uint32_t timeout) {
   bool ret = false;
   uint16_t model_num = getModelNumberFromTable(id);
   
@@ -962,12 +933,11 @@ bool Dynamixel2Arduino::writeControlTableItem(uint8_t item_idx, uint8_t id, int3
 
 /* Private Member Function */
 
-int32_t Dynamixel2Arduino::readControlTableItem(uint16_t model_num, uint8_t item_idx, uint8_t id, uint32_t timeout)
-{
+int32_t Dynamixel2IDF::readControlTableItem(uint16_t model_num, uint8_t item_idx, uint8_t id, uint32_t timeout) {
   int32_t recv_len, ret = 0;
   ControlTableItemInfo_t item_info;
 
-  p_dxl_port_ = (SerialPortHandler*)getPort();
+  p_dxl_port_ = (IDFPortHandler*)getPort();
   if(p_dxl_port_ == nullptr){
     setLastLibErrCode(D2A_LIB_ERROR_NULLPTR_PORT_HANDLER);
     return 0;
@@ -991,12 +961,11 @@ int32_t Dynamixel2Arduino::readControlTableItem(uint16_t model_num, uint8_t item
   return ret;
 }
 
-bool Dynamixel2Arduino::writeControlTableItem(uint16_t model_num, uint8_t item_idx, uint8_t id, int32_t data, uint32_t timeout)
-{
+bool Dynamixel2IDF::writeControlTableItem(uint16_t model_num, uint8_t item_idx, uint8_t id, int32_t data, uint32_t timeout) {
   bool ret = false;
   ControlTableItemInfo_t item_info;
   
-  p_dxl_port_ = (SerialPortHandler*)getPort();
+  p_dxl_port_ = (IDFPortHandler*)getPort();
   if(p_dxl_port_ == nullptr){
     setLastLibErrCode(D2A_LIB_ERROR_NULLPTR_PORT_HANDLER);
     return false;
@@ -1011,8 +980,7 @@ bool Dynamixel2Arduino::writeControlTableItem(uint16_t model_num, uint8_t item_i
 }
 
 uint8_t
-Dynamixel2Arduino::getModelNumberIndex(uint16_t model_num)
-{
+Dynamixel2IDF::getModelNumberIndex(uint16_t model_num) {
   uint8_t i, ret = 0xFF;
 
   // quick shortcut
@@ -1033,8 +1001,7 @@ Dynamixel2Arduino::getModelNumberIndex(uint16_t model_num)
 }
 
 
-uint16_t Dynamixel2Arduino::getModelNumberFromTable(uint8_t id)
-{
+uint16_t Dynamixel2IDF::getModelNumberFromTable(uint8_t id) {
   uint8_t idx;
   uint16_t model_num;
 
@@ -1049,8 +1016,7 @@ uint16_t Dynamixel2Arduino::getModelNumberFromTable(uint8_t id)
   return model_num;
 }
 
-float Dynamixel2Arduino::readForRangeDependencyFunc(uint8_t func_idx, uint8_t id, uint8_t unit)
-{
+float Dynamixel2IDF::readForRangeDependencyFunc(uint8_t func_idx, uint8_t id, uint8_t unit) {
   float ret = 0;
   int32_t recv_data = 0;
   uint16_t model_num = getModelNumberFromTable(id);
@@ -1079,8 +1045,7 @@ float Dynamixel2Arduino::readForRangeDependencyFunc(uint8_t func_idx, uint8_t id
   return ret;
 }
 
-bool Dynamixel2Arduino::writeForRangeDependencyFunc(uint8_t func_idx, uint8_t id, float value, uint8_t unit)
-{
+bool Dynamixel2IDF::writeForRangeDependencyFunc(uint8_t func_idx, uint8_t id, float value, uint8_t unit) {
   bool ret = false;
   int32_t data = 0;
   uint16_t model_num = getModelNumberFromTable(id);
@@ -1605,8 +1570,7 @@ const ModelDependencyFuncItemAndRangeInfo_t dependency_ym080_230_099_rh[] PROGME
   {LAST_DUMMY_FUNC, ControlTableItem::LAST_DUMMY_ITEM, UNIT_RAW, 0, 0, 0}
 };
 
-static ItemAndRangeInfo_t getModelDependencyFuncInfo(uint16_t model_num, uint8_t func_num)
-{
+static ItemAndRangeInfo_t getModelDependencyFuncInfo(uint16_t model_num, uint8_t func_num) {
   const ModelDependencyFuncItemAndRangeInfo_t *p_common_ctable = nullptr;
   const ModelDependencyFuncItemAndRangeInfo_t *p_dep_ctable = nullptr;
   uint8_t func_idx, i = 0;
@@ -1868,8 +1832,7 @@ static ItemAndRangeInfo_t getModelDependencyFuncInfo(uint16_t model_num, uint8_t
   return item_info;  
 }
 
-static bool checkAndconvertWriteData(float in_data, int32_t &out_data, uint8_t unit, ItemAndRangeInfo_t &item_info)
-{
+static bool checkAndconvertWriteData(float in_data, int32_t &out_data, uint8_t unit, ItemAndRangeInfo_t &item_info) {
   float data_f = 0.0;
   int32_t data = 0;  
 
@@ -1907,8 +1870,7 @@ static bool checkAndconvertWriteData(float in_data, int32_t &out_data, uint8_t u
   return true;
 }
 
-static bool checkAndconvertReadData(int32_t in_data, float &out_data, uint8_t unit, ItemAndRangeInfo_t &item_info)
-{
+static bool checkAndconvertReadData(int32_t in_data, float &out_data, uint8_t unit, ItemAndRangeInfo_t &item_info) {
   float data = 0;  
 
   switch(unit)
@@ -1940,7 +1902,6 @@ static bool checkAndconvertReadData(int32_t in_data, float &out_data, uint8_t un
   return true;
 }
 
-static float f_map(float x, float in_min, float in_max, float out_min, float out_max)
-{
+static float f_map(float x, float in_min, float in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }

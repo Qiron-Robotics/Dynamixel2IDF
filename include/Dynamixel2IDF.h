@@ -18,12 +18,12 @@
 #define DYNAMIXEL_2_ARDUINO_H_
 
 
-#include "utility/master.h"
-#include "utility/slave.h"
-#include "actuator.h"
+#include "include/actuator.h"
+#include "include/master.h"
+#include "include/slave.h"
 
 // TODO: Match the OP Mode to the actual value
-// https://github.com/ROBOTIS-GIT/Dynamixel2Arduino/issues/73
+// https://github.com/ROBOTIS-GIT/Dynamixel2IDF/issues/73
 enum OperatingMode{
   OP_CURRENT = 0,
   OP_VELOCITY = 1,
@@ -48,35 +48,34 @@ enum D2ALibErrorCode
   D2A_LIB_ERROR_UNKNOWN_MODEL_NUMBER
 };
 
-class Dynamixel2Arduino : public DYNAMIXEL::Master
-{
+class Dynamixel2IDF : public DYNAMIXEL::Master{
   public:
     /**
      * @brief The constructor.
      * @code
-     * Dynamixel2Arduino dxl;
+     * Dynamixel2IDF dxl;
      * @endcode
      */   
-    Dynamixel2Arduino(uint16_t packet_buf_size = DEFAULT_DXL_BUF_LENGTH);
+    Dynamixel2IDF(uint16_t packet_buf_size = DEFAULT_DXL_BUF_LENGTH);
 
     /**
      * @brief The constructor.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * @endcode
-     * @param port The HardwareSerial port you want to use on the board to communicate with DYNAMIXELs.
+     * @param port The IDFPortHandler port you want to use on the board to communicate with DYNAMIXELs.
      *          It is automatically initialized baudrate to 57600 by calling the begin () function.
      * @param dir_pin Directional pins for using half-duplex communication. -1 uses full duplex. (default : -1)
      */   
-    Dynamixel2Arduino(HardwareSerial& port, int dir_pin = -1, uint16_t packet_buf_size = DEFAULT_DXL_BUF_LENGTH);
+    Dynamixel2IDF( DXLPortHandler& port, int dir_pin = -1, uint16_t packet_buf_size = DEFAULT_DXL_BUF_LENGTH);
     
     /**
      * @brief Initialization function to start communication with DYNAMIXEL.
      *      Or change baudrate of baud serial port.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.begin(57600);
      * @endcode
      * @param baud The port speed you want on the board (the speed to communicate with DYNAMIXEL) (default : 57600)
@@ -88,7 +87,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for getting serial baudrate of board port.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * Serial.print(dxl.getPortBaud());
      * @endcode
      * @return It returns serial baudrate of board port.
@@ -99,7 +98,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for To checking the communication connection status of DYNAMIXEL.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.ping(1);
      * @endcode
      * @param id DYNAMIXEL Actuator's ID or BROADCAST ID (0xFE). (default : 0xFE)
@@ -112,7 +111,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is same as using the broadcast parameter(0xFE) of the ping function.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.scan();
      * @endcode
      * @return If a dynamixel succeeds in pinging, it returns 1, and returns 0 if none succeeds.
@@ -123,7 +122,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for getting model number of DYNAMIXEL.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.setModelNumber(1, 1020);
      * Serial.print(dxl.getModelNumber(1));
      * @endcode
@@ -137,7 +136,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for getting model number of DYNAMIXEL.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * Serial.print(dxl.getModelNumber(1));
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -150,7 +149,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for changing ID of DYNAMIXEL.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.setID(1, 2);
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -163,7 +162,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for changing protocol of DYNAMIXEL.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.setProtocol(1, 1.0);
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -176,7 +175,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for changing baudrate of DYNAMIXEL.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.setBaudrate(1, 57600);
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -189,7 +188,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for controlling torque on/off(turn on) of DYNAMIXEL.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.torqueOn(1);
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -201,7 +200,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for controlling torque on/off(turn on) of DYNAMIXEL.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.torqueOff(1);
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -213,7 +212,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for controlling LED(turn on) of DYNAMIXEL.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.ledOn(1);
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -225,7 +224,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for controlling LED(turn off) of DYNAMIXEL.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.ledOff(1);
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -237,7 +236,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for controlling operating mode of DYNAMIXEL.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.setOperatingMode(1, OP_POSITION);
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -251,7 +250,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * You can use the @unit parameter to specify the unit of @value.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.setGoalPosition(1, 512);
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -267,7 +266,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * You can use the @unit parameter to specify the unit of @value.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * Serial.print(dxl.getPresentPosition(1));
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -283,7 +282,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * You can use the @unit parameter to specify the unit of @value.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.setGoalVelocity(1, 512);
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -299,7 +298,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * You can use the @unit parameter to specify the unit of @value.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * Serial.print(dxl.getPresentVelocity(1));
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -315,7 +314,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * You can use the @unit parameter to specify the unit of @value.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.setGoalPWM(1, 50.0, UNIT_PERCENT);
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -331,7 +330,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * You can use the @unit parameter to specify the unit of @value.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * Serial.print(dxl.getPresentPWM(1, UNIT_PERCENT));
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -347,7 +346,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * You can use the @unit parameter to specify the unit of @value.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.setGoalCurrent(1, 512);
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -363,7 +362,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * You can use the @unit parameter to specify the unit of @value.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * Serial.print(dxl.getPresentCurrent(1));
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -378,7 +377,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for getting the torque enabled / disabled status of DYNAMIXEL.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * Serial.print(dxl.getTorqueEnableStat(1));
      * @endcode
      * @param id DYNAMIXEL Actuator's ID.
@@ -391,7 +390,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for getting data of a DYNAMIXEL control table item.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * Serial.print(dxl.readControlTableItem(PRESENT_VOLTAGE, 1));
      * @endcode
      * @param item_idx DYNAMIXEL Actuator's control table item's index.
@@ -410,7 +409,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
      * @brief It is API for controlling data of a DYNAMIXEL control table item.
      * @code
      * const int DXL_DIR_PIN = 2;
-     * Dynamixel2Arduino dxl(Serial1, DXL_DIR_PIN);
+     * Dynamixel2IDF dxl(Serial1, DXL_DIR_PIN);
      * dxl.writeControlTableItem(TORQUE_ENABLE, 1, 1);
      * @endcode
      * @param item_idx DYNAMIXEL Actuator's control table item's index.
@@ -444,7 +443,7 @@ class Dynamixel2Arduino : public DYNAMIXEL::Master
 
     uint8_t getHardwareError(uint8_t id);
     
-    // https://github.com/ROBOTIS-GIT/Dynamixel2Arduino/issues/73
+    // https://github.com/ROBOTIS-GIT/Dynamixel2IDF/issues/73
     uint8_t getOperatingMode(uint8_t id);
 #endif     
 
