@@ -1,8 +1,12 @@
 #ifndef DYNAMIXEL_ACTUATOR_HPP_
 #define DYNAMIXEL_ACTUATOR_HPP_
 
+#include "config.h"
 #include "stdint.h"
-#include "utility/config.h"
+#include "stdlib.h"
+#include "string.h"
+#include "stdio.h"
+
 
 #define DXL_TORQUE_ON  1
 #define DXL_TORQUE_OFF  0

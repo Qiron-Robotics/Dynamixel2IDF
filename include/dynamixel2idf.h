@@ -18,13 +18,18 @@
 #define DYNAMIXEL_2_ARDUINO_H_
 
 
-#include "include/actuator.h"
-#include "include/master.h"
-#include "include/slave.h"
+#include "port_handler.h"
+#include "actuator.h"
+#include "config.h"
+#include "master.h"
+#include "slave.h"
+
+#include "math.h"
+
 
 // TODO: Match the OP Mode to the actual value
 // https://github.com/ROBOTIS-GIT/Dynamixel2IDF/issues/73
-enum OperatingMode{
+enum OperatingMode {
   OP_CURRENT = 0,
   OP_VELOCITY = 1,
   OP_POSITION = 3,
@@ -33,7 +38,7 @@ enum OperatingMode{
   OP_PWM = 16,
 };
 
-enum ParamUnit{
+enum ParamUnit {
   UNIT_RAW = 0,
   UNIT_PERCENT,
   UNIT_RPM,
@@ -41,8 +46,7 @@ enum ParamUnit{
   UNIT_MILLI_AMPERE
 };
 
-enum D2ALibErrorCode
-{
+enum D2ALibErrorCode {
   D2A_LIB_ERROR_NULLPTR_PORT_HANDLER = 0x0040,
   D2A_LIB_ERROR_NOT_SUPPORT_FUNCTION,
   D2A_LIB_ERROR_UNKNOWN_MODEL_NUMBER
@@ -68,7 +72,7 @@ class Dynamixel2IDF : public DYNAMIXEL::Master{
      *          It is automatically initialized baudrate to 57600 by calling the begin () function.
      * @param dir_pin Directional pins for using half-duplex communication. -1 uses full duplex. (default : -1)
      */   
-    Dynamixel2IDF( DXLPortHandler& port, int dir_pin = -1, uint16_t packet_buf_size = DEFAULT_DXL_BUF_LENGTH);
+    Dynamixel2IDF( uart_port_t port, int dir_pin = -1, uint16_t packet_buf_size = DEFAULT_DXL_BUF_LENGTH);
     
     /**
      * @brief Initialization function to start communication with DYNAMIXEL.
@@ -81,7 +85,7 @@ class Dynamixel2IDF : public DYNAMIXEL::Master{
      * @param baud The port speed you want on the board (the speed to communicate with DYNAMIXEL) (default : 57600)
      * @return It returns true(1) on success, false(0) on failure.
      */    
-    void begin(unsigned long baud = 57600);
+    void begin(unsigned long baud = 57600, gpio_num_t txPin = GPIO_NUM_1, gpio_num_t rxPin = GPIO_NUM_3, uint32_t buf_size = 2048 );
 
     /**
      * @brief It is API for getting serial baudrate of board port.

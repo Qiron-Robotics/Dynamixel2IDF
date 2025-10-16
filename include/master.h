@@ -23,6 +23,12 @@
 #include "config.h"
 
 
+#include "esp_timer.h"
+uint64_t millis();
+uint64_t micros();
+
+#include "esp_log.h"
+
 const int UNREGISTERED_MODEL = (uint16_t)0xFFFF;
 const int COMMON_MODEL_NUMBER_ADDR = 0;
 const int COMMON_MODEL_NUMBER_ADDR_LENGTH = 2;
@@ -91,8 +97,7 @@ typedef struct RecvInfoFromStatusInst{
 
 namespace DYNAMIXEL {
 
-class Master
-{
+class Master{
   public:
     /**
      * @brief The constructor.
@@ -106,7 +111,7 @@ class Master
      *             It can be used not only for Serial but also for other communication port handlers like SerialPortHandler class.
      * @param protocol_ver DYNAMIXEL protocol version used for communications. (default : 2.0)
      */
-    Master(DXLPortHandler &port, float protocol_ver = 2.0, uint16_t malloc_buf_size = 256);
+    Master( DXLPortHandler &port, float protocol_ver = 2.0, uint16_t malloc_buf_size = 256);
 
     /**
      * @brief The constructor.
@@ -127,34 +132,28 @@ class Master
     bool setPortProtocolVersionUsingIndex(uint8_t version_idx);
     float getPortProtocolVersion() const;
 
-    bool setPort(DXLPortHandler &port);
-    bool setPort(DXLPortHandler *p_port);
+    bool setPort( DXLPortHandler &port);
+    bool setPort( DXLPortHandler *p_port);
     DXLPortHandler* getPort() const;
 
     /* Instructions */
-    uint8_t ping(uint8_t id, uint8_t *p_recv_id_array, uint8_t recv_array_capacity,
-      uint32_t timeout_ms = 10);
-    uint8_t ping(uint8_t id, InfoFromPing_t *recv_ping_info_array, uint8_t recv_array_cnt,
-      uint32_t timeout_ms = 10);
-    int32_t read(uint8_t id, uint16_t addr, uint16_t addr_length,
-      uint8_t *p_recv_buf, uint16_t recv_buf_capacity, uint32_t timeout_ms = 10);
-    bool write(uint8_t id, uint16_t addr, 
-      const uint8_t *p_data, uint16_t data_length, uint32_t timeout_ms = 10);      
-    bool writeNoResp(uint8_t id, uint16_t addr, 
-      const uint8_t *p_data, uint16_t data_length);
-    bool regWrite(uint8_t id, uint16_t addr, 
-      const uint8_t *p_data, uint16_t data_length, uint32_t timeout_ms = 10);
-    bool action(uint8_t id, uint32_t timeout_ms = 10);      
-    bool factoryReset(uint8_t id, uint8_t option, uint32_t timeout_ms = 10);
-    bool reboot(uint8_t id, uint32_t timeout_ms = 10);
-    bool clear(uint8_t id, uint8_t option, uint32_t ex_option, uint32_t timeout_ms = 10);
-    uint8_t syncRead(InfoSyncReadInst_t* p_info, uint32_t timeout_ms = 10);
+    uint8_t ping(uint8_t id, uint8_t *p_recv_id_array, uint8_t recv_array_capacity, uint32_t timeout_ms = 100);
+    uint8_t ping(uint8_t id, InfoFromPing_t *recv_ping_info_array, uint8_t recv_array_cnt, uint32_t timeout_ms = 100);
+    int32_t read(uint8_t id, uint16_t addr, uint16_t addr_length, uint8_t *p_recv_buf, uint16_t recv_buf_capacity, uint32_t timeout_ms = 100);
+    bool write(uint8_t id, uint16_t addr, const uint8_t *p_data, uint16_t data_length, uint32_t timeout_ms = 100);      
+    bool writeNoResp(uint8_t id, uint16_t addr, const uint8_t *p_data, uint16_t data_length);
+    bool regWrite(uint8_t id, uint16_t addr, const uint8_t *p_data, uint16_t data_length, uint32_t timeout_ms = 100);
+    bool action(uint8_t id, uint32_t timeout_ms = 100);      
+    bool factoryReset(uint8_t id, uint8_t option, uint32_t timeout_ms = 100);
+    bool reboot(uint8_t id, uint32_t timeout_ms = 100);
+    bool clear(uint8_t id, uint8_t option, uint32_t ex_option, uint32_t timeout_ms = 100);
+    uint8_t syncRead(InfoSyncReadInst_t* p_info, uint32_t timeout_ms = 100);
     bool syncWrite(InfoSyncWriteInst_t* p_info);
-    uint8_t bulkRead(InfoBulkReadInst_t* p_info, uint32_t timeout_ms = 10);
+    uint8_t bulkRead(InfoBulkReadInst_t* p_info, uint32_t timeout_ms = 100);
     bool bulkWrite(InfoBulkWriteInst_t* p_info);
 
-    uint8_t fastSyncRead(InfoSyncReadInst_t* p_info, uint32_t timeout_ms = 10);
-    uint8_t fastBulkRead(InfoBulkReadInst_t* p_info, uint32_t timeout_ms = 10);
+    uint8_t fastSyncRead(InfoSyncReadInst_t* p_info, uint32_t timeout_ms = 100);
+    uint8_t fastBulkRead(InfoBulkReadInst_t* p_info, uint32_t timeout_ms = 100);
 
     uint8_t getLastStatusPacketError() const;
     DXLLibErrorCode_t getLastLibErrCode() const;
@@ -171,7 +170,7 @@ class Master
 
     // raw APIs
     bool txInstPacket(uint8_t id, uint8_t inst_idx, uint8_t *p_param, uint16_t param_len);
-    const InfoToParseDXLPacket_t* rxStatusPacket(uint8_t* p_param_buf, uint16_t param_buf_cap, uint32_t timeout_ms = 10);
+    const InfoToParseDXLPacket_t* rxStatusPacket(uint8_t* p_param_buf, uint16_t param_buf_cap, uint32_t timeout_ms = 100);
     const InfoToParseDXLPacket_t* fastRxStatusPacket(InfoSyncReadInst_t* sync_read, InfoBulkReadInst_t* bulk_read, uint32_t timeout_ms = 10);
 
   private:

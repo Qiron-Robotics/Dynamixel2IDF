@@ -19,3 +19,42 @@
 ## How to create custom PortHandler Class
  - Please refer to [port_handler.h](https://github.com/ROBOTIS-GIT/Dynamixel2Arduino/blob/master/src/utility/port_handler.h)
  - Create a new class by inheriting PortHandler as public. (Like SerialPortHandler and USBSerialPortHandler)
+
+
+
+             +-------------------------+
+             |     DXLPortHandler      |   <-- Classe Base Abstrata
+             |-------------------------|
+             | + begin() = 0           |
+             | + end() = 0             |
+             | + available() = 0       |
+             | + read() = 0            |
+             | + write(...) = 0        |
+             | + getOpenState()        |
+             | + setOpenState(bool)    |
+             +-------------------------+
+                        ▲
+                        |
+        +---------------+---------------+
+        |                               |
++------------------------+   +---------------------------+
+|    SerialPortHandler   |   |      IDFPortHandler       |
+|------------------------|   |---------------------------|
+| + begin() override     |   | + begin() override        |
+| + write() override     |   | + write() override        |
+| + read() override      |   | + read() override         |
++------------------------+   +---------------------------+
+
+                            ▲
+                            |
+                  p_port_ : DXLPortHandler*
+                  dentro da classe Master
+
+                +-------------------------+
+                |    DYNAMIXEL::Master    |
+                |-------------------------|
+                | - p_port_               | -->    Aponta para para qualquer
+                |                         |     implementação de DXLPortHandler
+                | + setPort(...)          |
+                | + getPort()             |
+                +-------------------------+

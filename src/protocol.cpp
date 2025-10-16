@@ -1,17 +1,5 @@
 #include "protocol.h"
 
-#if !defined(ESP_PLATFORM) && !defined(ARDUINO_ARCH_MBED_PORTENTA) && !defined(ARDUINO_ARCH_SAMD)
-  #include <avr/pgmspace.h>
-#endif
-
-#if !defined(PROGMEM)
-  #define PROGMEM
-#endif
-
-#if !defined(pgm_read_word_near)
-  #define pgm_read_word_near(x) (*(uint16_t*)(x))
-#endif
-
 using namespace DYNAMIXEL; 
 
 // 2.0 Protocol
@@ -37,16 +25,7 @@ using namespace DYNAMIXEL;
 #define DXL1_0_PACKET_IDX_PARAM           5
 
 
-//-- Internal Variables
-//
-
-
-//-- External Variables
-//
-
-
 //-- Internal Functions
-//
 static DXLLibErrorCode_t parse_dxl1_0_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8_t recv_data);
 static DXLLibErrorCode_t parse_dxl2_0_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8_t recv_data);
 static DXLLibErrorCode_t fast_parse_dxl2_0_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8_t recv_data, InfoSyncReadInst_t *sync_read, InfoBulkReadInst_t *bulk_read);
@@ -60,11 +39,9 @@ static DXLLibErrorCode_t end_make_dxl2_0_packet(InfoToMakeDXLPacket_t* p_make_pa
 static void update_dxl_crc(uint16_t *p_crc_cur, uint8_t recv_data);
 
 //-- External Functions
-//
 DXLLibErrorCode_t begin_make_dxl_packet(InfoToMakeDXLPacket_t* p_make_packet, 
   uint8_t id, uint8_t protocol_ver, uint8_t inst_idx, uint8_t err_idx, 
-  uint8_t* p_packet_buf, uint16_t packet_buf_capacity)
-{
+  uint8_t* p_packet_buf, uint16_t packet_buf_capacity) {
   if(p_packet_buf == NULL){
     return DXL_LIB_ERROR_NULLPTR;
   }
@@ -101,8 +78,7 @@ DXLLibErrorCode_t begin_make_dxl_packet(InfoToMakeDXLPacket_t* p_make_packet,
 }
 
 
-DXLLibErrorCode_t add_param_to_dxl_packet(InfoToMakeDXLPacket_t* p_make_packet, uint8_t *p_param, uint16_t param_len)
-{
+DXLLibErrorCode_t add_param_to_dxl_packet(InfoToMakeDXLPacket_t* p_make_packet, uint8_t *p_param, uint16_t param_len) {
   DXLLibErrorCode_t ret;
 
   if(p_make_packet == NULL){
@@ -122,8 +98,7 @@ DXLLibErrorCode_t add_param_to_dxl_packet(InfoToMakeDXLPacket_t* p_make_packet, 
   return ret;
 }
 
-static DXLLibErrorCode_t add_param_to_dxl1_0_packet(InfoToMakeDXLPacket_t* p_make_packet, uint8_t *p_param, uint16_t param_len)
-{
+static DXLLibErrorCode_t add_param_to_dxl1_0_packet(InfoToMakeDXLPacket_t* p_make_packet, uint8_t *p_param, uint16_t param_len) {
   uint8_t *p_param_buf;
   uint16_t i, generated_param_len;
 
@@ -145,8 +120,7 @@ static DXLLibErrorCode_t add_param_to_dxl1_0_packet(InfoToMakeDXLPacket_t* p_mak
   return DXL_LIB_OK;
 }
 
-static DXLLibErrorCode_t add_param_to_dxl2_0_packet(InfoToMakeDXLPacket_t* p_make_packet, uint8_t *p_param, uint16_t param_len)
-{
+static DXLLibErrorCode_t add_param_to_dxl2_0_packet(InfoToMakeDXLPacket_t* p_make_packet, uint8_t *p_param, uint16_t param_len) {
   uint8_t *p_packet, *p_param_buf;
   uint16_t i, generated_param_len;
 
@@ -225,8 +199,7 @@ static DXLLibErrorCode_t add_param_to_dxl2_0_packet(InfoToMakeDXLPacket_t* p_mak
 
 
 
-DXLLibErrorCode_t end_make_dxl_packet(InfoToMakeDXLPacket_t* p_make_packet)
-{
+DXLLibErrorCode_t end_make_dxl_packet(InfoToMakeDXLPacket_t* p_make_packet) {
   DXLLibErrorCode_t ret;
 
   if(p_make_packet == NULL){
@@ -250,8 +223,7 @@ DXLLibErrorCode_t end_make_dxl_packet(InfoToMakeDXLPacket_t* p_make_packet)
   return ret;
 }
 
-static DXLLibErrorCode_t end_make_dxl1_0_packet(InfoToMakeDXLPacket_t* p_make_packet)
-{
+static DXLLibErrorCode_t end_make_dxl1_0_packet(InfoToMakeDXLPacket_t* p_make_packet) {
   uint8_t *p_packet;
   uint8_t check_sum = 0;
   uint16_t i, generated_packet_len = 0;
@@ -286,8 +258,7 @@ static DXLLibErrorCode_t end_make_dxl1_0_packet(InfoToMakeDXLPacket_t* p_make_pa
   return DXL_LIB_OK;
 }
 
-static DXLLibErrorCode_t end_make_dxl2_0_packet(InfoToMakeDXLPacket_t* p_make_packet)
-{
+static DXLLibErrorCode_t end_make_dxl2_0_packet(InfoToMakeDXLPacket_t* p_make_packet) {
   uint8_t *p_packet;
   uint16_t i, generated_packet_len = 0, calculated_crc = 0;
 
@@ -330,28 +301,23 @@ static DXLLibErrorCode_t end_make_dxl2_0_packet(InfoToMakeDXLPacket_t* p_make_pa
 }
 
 DXLLibErrorCode_t begin_parse_dxl_packet(InfoToParseDXLPacket_t* p_parse_packet, 
-  uint8_t protocol_ver, uint8_t* p_param_buf, uint16_t param_buf_capacity)
-{
+  uint8_t protocol_ver, uint8_t* p_param_buf, uint16_t param_buf_capacity) {
   if(param_buf_capacity > 0 && p_param_buf == NULL){
     return DXL_LIB_ERROR_NULLPTR;
   }
-  
   if(protocol_ver != 1 && protocol_ver != 2){
     return DXL_LIB_ERROR_INVAILD_PROTOCOL_VERSION;
   }
-
   p_parse_packet->protocol_ver = protocol_ver;
   p_parse_packet->p_param_buf = p_param_buf;
   p_parse_packet->param_buf_capacity = param_buf_capacity;
   // p_parse_packet->recv_param_len = 0;
   // p_parse_packet->parse_state = 0;
   p_parse_packet->is_init = true;
-
   return DXL_LIB_OK;
 }
 
-DXLLibErrorCode_t fast_begin_parse_dxl_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8_t protocol_ver)
-{
+DXLLibErrorCode_t fast_begin_parse_dxl_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8_t protocol_ver) {
   if (protocol_ver != 2)
     return DXL_LIB_ERROR_INVAILD_PROTOCOL_VERSION;
 
@@ -363,8 +329,7 @@ DXLLibErrorCode_t fast_begin_parse_dxl_packet(InfoToParseDXLPacket_t* p_parse_pa
   return DXL_LIB_OK;
 }
 
-DXLLibErrorCode_t parse_dxl_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8_t recv_data)
-{
+DXLLibErrorCode_t parse_dxl_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8_t recv_data) {
   DXLLibErrorCode_t ret;
 
   if(p_parse_packet == NULL){
@@ -385,8 +350,7 @@ DXLLibErrorCode_t parse_dxl_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8
 }
 
 DXLLibErrorCode_t fast_parse_dxl_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8_t recv_data,
-                                        InfoSyncReadInst_t *sync_read, InfoBulkReadInst_t *bulk_read)
-{
+                                        InfoSyncReadInst_t *sync_read, InfoBulkReadInst_t *bulk_read) {
   if (p_parse_packet == NULL)
     return DXL_LIB_ERROR_NULLPTR;
   else if (p_parse_packet->is_init == false)
@@ -399,8 +363,7 @@ DXLLibErrorCode_t fast_parse_dxl_packet(InfoToParseDXLPacket_t* p_parse_packet, 
   return fast_parse_dxl2_0_packet(p_parse_packet, recv_data, sync_read, bulk_read);
 }
 
-static DXLLibErrorCode_t parse_dxl1_0_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8_t recv_data)
-{
+static DXLLibErrorCode_t parse_dxl1_0_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8_t recv_data) {
   DXLLibErrorCode_t ret = DXL_LIB_PROCEEDING;
 
   switch(p_parse_packet->parse_state)
@@ -491,8 +454,7 @@ static DXLLibErrorCode_t parse_dxl1_0_packet(InfoToParseDXLPacket_t* p_parse_pac
   return ret;
 }
 
-static DXLLibErrorCode_t parse_dxl2_0_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8_t recv_data)
-{
+static DXLLibErrorCode_t parse_dxl2_0_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8_t recv_data) {
   DXLLibErrorCode_t ret = DXL_LIB_PROCEEDING;
   static uint16_t byte_stuffing_cnt = 0;  // static variable
 
@@ -685,8 +647,7 @@ static DXLLibErrorCode_t parse_dxl2_0_packet(InfoToParseDXLPacket_t* p_parse_pac
 
 //fast_parse_dxl2_0_packet
 static DXLLibErrorCode_t fast_parse_dxl2_0_packet(InfoToParseDXLPacket_t* p_parse_packet, uint8_t recv_data,
-                                                  InfoSyncReadInst_t *sync_read, InfoBulkReadInst_t *bulk_read)
-{
+                                                  InfoSyncReadInst_t *sync_read, InfoBulkReadInst_t *bulk_read) {
   DXLLibErrorCode_t ret = DXL_LIB_PROCEEDING;
 
   switch(p_parse_packet->parse_state)
@@ -865,7 +826,7 @@ static DXLLibErrorCode_t fast_parse_dxl2_0_packet(InfoToParseDXLPacket_t* p_pars
 }
 
 
-const unsigned short crc_table[256] PROGMEM = { 0x0000,
+const unsigned short crc_table[256] = { 0x0000,
   0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011,
   0x8033, 0x0036, 0x003C, 0x8039, 0x0028, 0x802D, 0x8027,
   0x0022, 0x8063, 0x0066, 0x006C, 0x8069, 0x0078, 0x807D,
@@ -904,8 +865,7 @@ const unsigned short crc_table[256] PROGMEM = { 0x0000,
   0x0234, 0x8231, 0x8213, 0x0216, 0x021C, 0x8219, 0x0208,
   0x820D, 0x8207, 0x0202 };
 
-static void update_dxl_crc(uint16_t *p_crc_cur, uint8_t recv_data)
-{
+static void update_dxl_crc(uint16_t *p_crc_cur, uint8_t recv_data) {
   uint16_t crc;
   uint16_t i;
 

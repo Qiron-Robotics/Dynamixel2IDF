@@ -23,6 +23,7 @@
 #include "freertos/timers.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
+#include "esp_log.h"
 
 #include "driver/uart.h"
 #include "driver/gpio.h"
@@ -55,13 +56,28 @@ class DXLPortHandler{
     bool open_state_;
 };
 
-class IDFPortHandler : public DXLPortHandler {
-  public:
-    IDFPortHandler( uart_port_t port, int dir_pin = -1 );
 
-    virtual void begin( uint32_t baudrate, int txPin, int rxPin, int buf_size = 1024 ) override;
+namespace DYNAMIXEL{
+
+class SerialPortHandler : public DXLPortHandler {
+  private:
+    uart_port_t _port;
+    gpio_num_t _tx_pin;
+    gpio_num_t _rx_pin;
+    uint32_t _buffer_size;
+    uint32_t _baud;
+    uint32_t _tx_delay_us;
+    gpio_num_t _dir_pin;
+
+  public:
+    SerialPortHandler( uart_port_t port, int dir_pin = -1 );
+
+    virtual void begin() override;
+    void begin( uint32_t baud, gpio_num_t tx_pin, gpio_num_t rx_pin, uint32_t buff_size = 2048 );
     void begin( uint32_t baud );
     
+    unsigned long int getBaud( );
+
     virtual int available(void) override;
     
     virtual size_t write(uint8_t) override;
@@ -69,14 +85,9 @@ class IDFPortHandler : public DXLPortHandler {
     virtual int read() override;
     
     virtual void end() override;
-
-  private:
-    uart_port_t port_;
-    uint32_t dir_pin_;
-    uint32_t baud_;
-    uint32_t tx_delay_us_;
-    bool open_state_;
 };
+
+}
 
 
 #endif /* DYNAMIXEL_PORT_HANDLER_HPP_ */
